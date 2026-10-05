@@ -1,0 +1,10 @@
+import {readdirSync,readFileSync,writeFileSync,mkdirSync,copyFileSync,unlinkSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+mkdirSync('public',{recursive:true});
+for(const file of readdirSync('.')) if(/\.(html|css|js|svg|png|ico)$/.test(file)) copyFileSync(file,'public/'+file);
+const parts=readdirSync('.').filter(f=>/^assets\.part\d+$/.test(f)).sort();
+if(!parts.length) throw new Error('Missing bundled assets');
+writeFileSync('assets.tar.gz',Buffer.concat(parts.map(f=>readFileSync(f))));
+execFileSync('tar',['-xzf','assets.tar.gz','-C','public']);
+unlinkSync('assets.tar.gz');
+console.log('Little Sparkle built with all pictures and recorded audio.');
